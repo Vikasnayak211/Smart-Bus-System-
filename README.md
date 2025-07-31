@@ -52,8 +52,8 @@ A combined project with **3 key safety features** designed for public transport 
 
 ## 👨‍🔧 Made By
 Vikas Nayak, 2nd year Mechanical Engineering  
-GitHub: https://github.com/Vikasnayak211
 
+GitHub: [https://github.com/Vikasnayak211](https://github.com/Vikasnayak211)
 ---
 
 ## 🌟 Future Improvements

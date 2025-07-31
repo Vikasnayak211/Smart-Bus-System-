@@ -1,0 +1,77 @@
+*🚶🏻PASSENGER COUNTING (MAX 30)* 
+
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+#define IR_ENTRY 2
+#define IR_EXIT 4
+
+int passengerCount = 0;
+const int maxPassengers = 30;
+
+bool entryDetected = false;
+bool exitDetected = false;
+
+void setup() {
+  pinMode(IR_ENTRY, INPUT_PULLUP);
+  pinMode(IR_EXIT, INPUT_PULLUP);
+
+  lcd.init();
+  lcd.backlight();
+  showCount("System Ready");
+}
+
+void loop() {
+  // Check entry sensor
+  if (digitalRead(IR_ENTRY) == LOW && !entryDetected) {
+    entryDetected = true;
+    delay(200); // debounce
+  }
+
+  if (digitalRead(IR_ENTRY) == HIGH && entryDetected) {
+    if (passengerCount < maxPassengers) {
+      passengerCount++;
+      showCount("Entered");
+    } else {
+      showOverloaded();
+    }
+    entryDetected = false;
+  }
+
+  // Check exit sensor
+  if (digitalRead(IR_EXIT) == LOW && !exitDetected) {
+    exitDetected = true;
+    delay(200); // debounce
+  }
+
+  if (digitalRead(IR_EXIT) == HIGH && exitDetected) {
+    if (passengerCount > 0) {
+      passengerCount--;
+      showCount("Exited");
+    }
+    exitDetected = false;
+  }
+}
+
+void showCount(String action) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Passenger ");
+  lcd.print(action);
+  lcd.setCursor(0, 1);
+  lcd.print("Count: ");
+  lcd.print(passengerCount);
+  delay(1000);
+}
+
+void showOverloaded() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("   OVERLOADED!   ");
+  lcd.setCursor(0, 1);
+  lcd.print("Max Limit: 30");
+  delay(1500);
+  showCount("Limit");
+}

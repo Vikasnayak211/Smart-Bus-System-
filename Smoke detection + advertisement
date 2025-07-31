@@ -1,0 +1,93 @@
+*🖊️Smoke + advertisement* 
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// Pin Definitions
+const int mq2Pin = A0;     // Analog pin for MQ2
+const int buzzerPin = 8;   // Digital pin for buzzer
+int threshold = 300;       // Threshold value for gas detection
+
+void setup() {
+  // LCD setup
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Send 1-5 for Ad");
+
+  // Buzzer setup
+  pinMode(buzzerPin, OUTPUT);
+
+  // Serial Communication
+  Serial.begin(9600);
+}
+
+void loop() {
+  // MQ2 Sensor and Buzzer Logic
+  int sensorValue = analogRead(mq2Pin);
+  Serial.println(sensorValue);
+
+  if (sensorValue > threshold) {
+    digitalWrite(buzzerPin, HIGH);  // Gas detected - buzzer ON
+  } else {
+    digitalWrite(buzzerPin, LOW);   // No gas - buzzer OFF
+  }
+
+  // Serial Input and LCD Display
+  if (Serial.available()) {
+    char input = Serial.read();
+    lcd.clear();
+
+    String stopMsg = "";
+    String adText = "";
+
+    if (input == '1') {
+      stopMsg = "Welcome to Mandya";
+      adText = "Amul Ice Cream";
+    } 
+    else if (input == '2') {
+      stopMsg = "Welcome to Mysore";
+      adText = "Rama Sarees";
+    } 
+    else if (input == '3') {
+      stopMsg = "Welcome to Bangalore";
+      adText = "Reliance Digital";
+    } 
+    else if (input == '4') {
+      stopMsg = "Welcome to Malavalli";
+      adText = "Veggie Market";
+    } 
+    else if (input == '5') {
+      stopMsg = "Welcome to Maddur";
+      adText = "Maddur Vada!";
+    } 
+    else {
+      lcd.setCursor(0, 0);
+      lcd.print("Invalid Input");
+      return;
+    }
+
+    scrollBothLines(stopMsg, adText);
+  }
+
+  delay(100);  // Small delay for stability
+}
+
+void scrollBothLines(String line1, String line2) {
+  String space = "                "; // 16 spaces
+  line1 = space + line1 + space;
+  line2 = space + line2 + space;
+
+  int len = max(line1.length(), line2.length());
+
+  for (int i = 0; i <= len - 16; i++) {
+    lcd.setCursor(0, 0);
+    lcd.print(line1.substring(i, i + 16));
+
+    lcd.setCursor(0, 1);
+    lcd.print(line2.substring(i, i + 16));
+
+    delay(300);
+  }
+}
